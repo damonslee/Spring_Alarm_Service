@@ -1,0 +1,39 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.hanaset'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.projectlombok:lombok'
+
+    compile group: 'org.apache.directory.studio', name: 'org.apache.commons.codec', version: '1.8'
+    compile group: 'org.eclipse.equinox', name: 'org.apache.commons.logging', version: '1.0.4.v200706111724'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.9'
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.11'
+    compile group: 'org.apache.clerezza.ext', name: 'org.json.simple', version: '0.4'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ses', version: '1.11.575'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk', version:'1.11.573'
+}
