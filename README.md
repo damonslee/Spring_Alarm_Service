@@ -14,3 +14,5 @@ V2
 지원 기능 : Amazon SQS에 데이터 푸쉬
 - Rest API 지원
 - request / Response / HttpStatus 응답 구현
+- 메세지 형식에 대한 리스트 요청 API
+- API문서 Swagger 추가
