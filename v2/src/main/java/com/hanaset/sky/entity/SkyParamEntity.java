@@ -1,16 +1,12 @@
-package com.hanaset.sky.entitiy;
+package com.hanaset.sky.entity;
 
 import lombok.Data;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @Data
 @Entity
-@DynamicInsert
-@DynamicUpdate
-@Table(name = "TB_SK_PARAM")
+@Table(name = "TC_SK_PARAM")
 public class SkyParamEntity {
 
     @Id

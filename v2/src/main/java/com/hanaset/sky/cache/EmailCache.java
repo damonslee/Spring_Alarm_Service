@@ -1,6 +1,6 @@
 package com.hanaset.sky.cache;
 
-import com.hanaset.sky.entitiy.SkyEmailTemplateEntity;
+import com.hanaset.sky.entity.SkyEmailTemplateEntity;
 import com.hanaset.sky.repository.SkyEmailTemplateRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.hanaset.sky.entitiy;
+package com.hanaset.sky.entity;
 
 import lombok.Builder;
 import lombok.Data;

@@ -61,12 +61,12 @@ public class SQSClient {
             Object temp = parser.parse(jsonString);
             JSONObject jsonObject = (JSONObject)temp;
 
-            System.out.println(jsonObject);
-
             SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(sqsConfig.getUrl())
                     .withMessageBody(object.toString())
                     .withDelaySeconds(1);
-            //sqs.sendMessage(jsonObject);
+
+            //System.out.println(sendMessageRequest);
+            sqs.sendMessage(sendMessageRequest);
 
             log.info("aws SQS Message Data -> {}", object.toString());
         }catch (Exception e){

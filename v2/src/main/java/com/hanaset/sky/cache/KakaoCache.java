@@ -1,6 +1,6 @@
 package com.hanaset.sky.cache;
 
-import com.hanaset.sky.entitiy.SkyKakaoTemplateEntity;
+import com.hanaset.sky.entity.SkyKakaoTemplateEntity;
 import com.hanaset.sky.repository.SkyKakaoTemplateRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

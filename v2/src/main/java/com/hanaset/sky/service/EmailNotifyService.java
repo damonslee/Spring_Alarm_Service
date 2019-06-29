@@ -1,9 +1,9 @@
 package com.hanaset.sky.service;
 
 import com.hanaset.sky.cache.EmailCache;
-import com.hanaset.sky.entitiy.SkyEmailTemplateEntity;
-import com.hanaset.sky.entitiy.SkyMsgLogEntity;
-import com.hanaset.sky.entitiy.SkyParamEntity;
+import com.hanaset.sky.entity.SkyEmailTemplateEntity;
+import com.hanaset.sky.entity.SkyMsgLogEntity;
+import com.hanaset.sky.entity.SkyParamEntity;
 import com.hanaset.sky.item.ResponseItem;
 import com.hanaset.sky.repository.SkyMsgLogRepository;
 import com.hanaset.sky.requestmsg.RequestMsg;
@@ -143,9 +143,9 @@ public class EmailNotifyService {
             params.add("EMAIL_ADDRESS");
         } else if (param.equals("verification_link")) {
             params.add("VERIFICATION_LINK");
-        } else {
-            params.add(param);
         }
+
+        params.add(param);
 
 
         return params;

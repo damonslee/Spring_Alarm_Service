@@ -1,15 +1,11 @@
-package com.hanaset.sky.entitiy;
+package com.hanaset.sky.entity;
 
 import lombok.Data;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @Data
 @Entity
-@DynamicInsert
-@DynamicUpdate
 @Table(name = "TB_SK_EMAIL_TEMPLATE")
 public class SkyEmailTemplateEntity {
 

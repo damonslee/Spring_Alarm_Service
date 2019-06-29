@@ -1,9 +1,9 @@
 package com.hanaset.sky.service;
 
 import com.hanaset.sky.cache.SmsCache;
-import com.hanaset.sky.entitiy.SkyMsgLogEntity;
-import com.hanaset.sky.entitiy.SkyParamEntity;
-import com.hanaset.sky.entitiy.SkySmsTemplateEntity;
+import com.hanaset.sky.entity.SkyMsgLogEntity;
+import com.hanaset.sky.entity.SkyParamEntity;
+import com.hanaset.sky.entity.SkySmsTemplateEntity;
 import com.hanaset.sky.item.ResponseItem;
 import com.hanaset.sky.repository.SkyMsgLogRepository;
 import com.hanaset.sky.requestmsg.RequestMsg;
@@ -117,9 +117,8 @@ public class SmsNotifyService {
             params.add("coin");
         } else if (param.equals("date")) {
             params.add("Time");
-        } else {
-            params.add(param);
         }
+        params.add(param);
 
         return params;
     }

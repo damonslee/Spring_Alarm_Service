@@ -1,9 +1,9 @@
 package com.hanaset.sky.service;
 
 import com.hanaset.sky.cache.KakaoCache;
-import com.hanaset.sky.entitiy.SkyKakaoTemplateEntity;
-import com.hanaset.sky.entitiy.SkyMsgLogEntity;
-import com.hanaset.sky.entitiy.SkyParamEntity;
+import com.hanaset.sky.entity.SkyKakaoTemplateEntity;
+import com.hanaset.sky.entity.SkyMsgLogEntity;
+import com.hanaset.sky.entity.SkyParamEntity;
 import com.hanaset.sky.item.ResponseItem;
 import com.hanaset.sky.repository.SkyMsgLogRepository;
 import com.hanaset.sky.requestmsg.RequestMsg;
@@ -151,9 +151,10 @@ public class KakaoNotifyService {
             params.add("대여물");
         } else if (param.equals("fee")) {
             params.add("수수료정보");
-        } else {
-            params.add(param); // param가 영어 인 경우
         }
+
+        params.add(param); // param가 영어 인 경우
+
 
         return params;
     }
