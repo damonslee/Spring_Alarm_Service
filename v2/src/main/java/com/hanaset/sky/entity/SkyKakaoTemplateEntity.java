@@ -20,10 +20,6 @@ public class SkyKakaoTemplateEntity {
     private String context;
 
     @OneToOne
-    @JoinColumn(name = "button_id")
-    private SkyKakaoButtonEntity button;
-
-    @OneToOne
     @JoinColumn(name = "param_id")
     private SkyParamEntity param;
 

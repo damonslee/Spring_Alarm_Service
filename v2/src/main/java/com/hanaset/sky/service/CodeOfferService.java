@@ -36,7 +36,7 @@ public class CodeOfferService {
 
             kakaoObject = new JSONObject();
             for (SkyKakaoTemplateEntity entity : kakaoCache.getSkyKakaoTemplateRepository().findAll()) {
-                kakaoObject.put(entity.getId(), entity.getCode());
+                kakaoObject.put(entity.getName(), entity.getCode());
             }
             object.put("kakao", kakaoObject);
 
@@ -56,7 +56,7 @@ public class CodeOfferService {
 
             emailObject = new JSONObject();
             for (SkyEmailTemplateEntity entity : emailCache.getSkyEmailTemplateRepository().findAll()) {
-                emailObject.put(entity.getId(), entity.getCode());
+                emailObject.put(entity.getSubject(), entity.getCode());
             }
             object.put("email", emailObject);
 

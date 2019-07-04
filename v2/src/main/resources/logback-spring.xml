@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <springProfile name="local, development">
+        <include resource="logback-base.xml"/>
+        <root level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="debug_log"/>
+            <appender-ref ref="error_log"/>
+            <appender-ref ref="info_log"/>
+        </root>
+        <logger name="com.hanaset.sky" level="DEBUG">
+            <appender-ref ref="application_log"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="production">
+        <include resource="logback-base.xml"/>
+        <root level="INFO">
+            <appender-ref ref="error_log"/>
+        </root>
+        <logger name="com.hanaset.sky" level="INFO">
+            <appender-ref ref="application_log"/>
+        </logger>
+    </springProfile>
+
+</configuration>

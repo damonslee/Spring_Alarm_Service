@@ -1,23 +1,23 @@
 package com.hanaset.sky.service;
 
 import com.hanaset.sky.cache.KakaoCache;
+import com.hanaset.sky.common.LogRecoder;
+import com.hanaset.sky.common.SkyApiErrorCode;
 import com.hanaset.sky.entity.SkyKakaoTemplateEntity;
-import com.hanaset.sky.entity.SkyMsgLogEntity;
 import com.hanaset.sky.entity.SkyParamEntity;
-import com.hanaset.sky.item.ResponseItem;
-import com.hanaset.sky.repository.SkyMsgLogRepository;
+import com.hanaset.sky.exception.SkyResponseException;
 import com.hanaset.sky.requestmsg.RequestMsg;
 import com.hanaset.sky.sqs.SQSClient;
 import com.hanaset.sky.item.KakaoSQSItem;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.PatternSyntaxException;
 
@@ -32,50 +32,31 @@ public class KakaoNotifyService {
     private SQSClient sqsClient;
 
     @Autowired
-    private SkyMsgLogRepository logRepository;
+    private LogRecoder logRecoder;
 
 
-    public ResponseEntity<ResponseItem> sendMessage(RequestMsg request) {
+    public void sendMessage(RequestMsg request) {
 
         SkyKakaoTemplateEntity entity = kakaoCache.findForTemplate(request.getCode());
 
-        long reqTime = System.currentTimeMillis();
+        Timestamp reqTime = Timestamp.valueOf(LocalDateTime.now());
 
         String editMsg;
-        ResponseItem result = verifyRequest(request, entity);
 
-        if (result == null) {
+        verifyRequest(request, entity, reqTime);
 
-            editMsg = getMessage(request.getParam(), entity);
+        editMsg = getMessage(request.getParam(), entity);
 
-            KakaoSQSItem item = KakaoSQSItem.builder()
-                    .medium("kakao-sms")
-                    .recipient(request.getTo())
-                    .template(request.getCode())
-                    .text(editMsg)
-                    .build();
-
-            sqsClient.send(item);
-
-            result = ResponseItem.builder()
-                    .code("0")
-                    .data(new JSONObject())
-                    .build();
-        }
-
-        SkyMsgLogEntity logEntity = SkyMsgLogEntity.builder()
-                .code(request.getCode())
-                .address(request.getTo())
-                .msgType("kakao-sms")
-                .param(request.getParam().toString())
-                .reqTime(reqTime)
-                .compTime(System.currentTimeMillis())
-                .result(result.getCode())
+        KakaoSQSItem item = KakaoSQSItem.builder()
+                .medium("kakao-sms")
+                .recipient(request.getTo())
+                .template(request.getCode())
+                .text(editMsg)
                 .build();
 
-        logRepository.save(logEntity);
+        sqsClient.send(item);
 
-        return new ResponseEntity<ResponseItem>(result, getHttpStatus(result.getCode()));
+        logRecoder.recordLog(request, "success", reqTime);
     }
 
 
@@ -83,7 +64,7 @@ public class KakaoNotifyService {
 
         String message = skyKakaoTemplateEntity.getContext();
 
-        if(jsonObject != null) {
+        if (jsonObject != null) {
             Set key = jsonObject.keySet();
             Iterator<String> iterator = key.iterator();
 
@@ -160,48 +141,32 @@ public class KakaoNotifyService {
     }
 
 
-    public ResponseItem verifyRequest(RequestMsg request, SkyKakaoTemplateEntity entity) {
-
-        JSONObject result = new JSONObject();
+    public void verifyRequest(RequestMsg request, SkyKakaoTemplateEntity entity, Timestamp reqTime) {
 
         if (entity == null) { // Code isn't exist
-            log.error("Code is not exist Code -> {}", request.getCode());
-            //result.put("result", "failed");
-            result.put("error", "Code is not exist");
-            return ResponseItem.builder()
-                    .code("__no_request_param")
-                    .data(result)
-                    .build();
+            log.warn("Code is not exist Code -> {}", request.getCode());
+            logRecoder.recordLog(request, SkyApiErrorCode.INVALID_PARAMS, reqTime);
+            throw new SkyResponseException(SkyApiErrorCode.INVALID_PARAMS, "Code is not exist");
         }
 
         if (!vaildateNumber(request.getTo())) { // The phone number format is not correct
-            log.error("Phone number don't match format PhoneNumber -> {}", request.getTo());
-            //result.put("result", "failed");
-            result.put("error", "Phone number is not format");
-            return ResponseItem.builder()
-                    .code("__no_request_param")
-                    .data(result)
-                    .build();
+            log.warn("Phone number don't match format PhoneNumber -> {}", request.getTo());
+            logRecoder.recordLog(request, SkyApiErrorCode.INVALID_PARAMS, reqTime);
+            throw new SkyResponseException(SkyApiErrorCode.INVALID_PARAMS, "Phone number don't match format");
         }
 
         String paramResult = verifyParam(entity, request.getParam());
         if (paramResult != null) { // required parameters are not exist && parameter value is invalidate
-            log.error("Parameter Not match data -> {}", request.getParam());
-            //result.put("result", "failed");
-            result.put("error", paramResult);
-            return ResponseItem.builder()
-                    .code("__no_request_param")
-                    .data(result)
-                    .build();
+            log.warn("Parameter Not match data -> {}", request.getParam());
+            logRecoder.recordLog(request, SkyApiErrorCode.INVALID_PARAMS, reqTime);
+            throw new SkyResponseException(SkyApiErrorCode.INVALID_PARAMS, "Parameter don't match data [" + paramResult + "]");
         }
-
-        return null;
     }
 
 
     private boolean vaildateNumber(String number) {
 
-        String regex_phone_no = "^\\+?[1-9]\\d{1,14}$";
+        String regex_phone_no = "(\\d{3,4})(\\d{3,4})(\\d{4})";
 
         return number.matches(regex_phone_no);
     }
@@ -219,7 +184,7 @@ public class KakaoNotifyService {
 
     private boolean vaildateDate(String datetime) {
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         try {
             Date date = format.parse(datetime);
             return true;
@@ -232,14 +197,14 @@ public class KakaoNotifyService {
 
         SkyParamEntity paramEntity = entity.getParam();
 
-        if (paramEntity.getParams() != null) {
+        if (!paramEntity.getParams().equals("") && object != null) {
 
             String params = paramEntity.getParams();
 
             String[] array_param = params.split(",");
 
             if (array_param.length != object.size()) {
-                return "Number of parameters is incorrect";
+                return "parameter [" + params + "]";
             }
 
             for (String param : array_param) {
@@ -255,29 +220,11 @@ public class KakaoNotifyService {
                     return param + " is Error";
                 }
             }
-        } else {
+        } else if(paramEntity.getParams().equals("") || object == null){
 
-            if(object.size() != 0)
                 return "Number of parameters is incorrect";
         }
         return null;
     }
-
-    private HttpStatus getHttpStatus(String code){
-
-        HttpStatus status;
-
-        if(code.equals("0")){
-            status = HttpStatus.OK;
-        }else if(code.equals("__no_req_param")){
-            status = HttpStatus.BAD_REQUEST;
-        }else{
-            status = HttpStatus.NOT_FOUND;
-        }
-
-        return status;
-    }
-
-
 }
 

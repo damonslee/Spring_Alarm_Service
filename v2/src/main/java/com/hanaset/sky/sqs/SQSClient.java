@@ -10,8 +10,6 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +32,11 @@ public class SQSClient {
 
         BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(sqsConfig.getAccessKey(), sqsConfig.getSecretKey());
 
+        System.out.println("==============================================");
+        System.out.println("access : " + sqsConfig.getAccessKey());
+        System.out.println("secret : " + sqsConfig.getSecretKey());
+        System.out.println("region : " + sqsConfig.getRegion());
+
         try {
             sqs = AmazonSQSClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials)).withRegion(sqsConfig.getRegion()).build();
         }catch (NullPointerException e){
@@ -51,44 +54,34 @@ public class SQSClient {
 
     public void send(Object object){
 
-        log.info("aws SQS Message send");
-
         ObjectMapper mapper = new ObjectMapper();
         try {
 
-            JSONParser parser = new JSONParser();
             String jsonString = mapper.writeValueAsString(object);
-            Object temp = parser.parse(jsonString);
-            JSONObject jsonObject = (JSONObject)temp;
 
-            SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(sqsConfig.getUrl())
-                    .withMessageBody(object.toString())
-                    .withDelaySeconds(1);
+            //SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(sqsConfig.getUrl())
+            //        .withMessageBody(object.toString());
+
+            SendMessageRequest sendMessageRequest = new SendMessageRequest(sqsConfig.getUrl(), jsonString);
 
             //System.out.println(sendMessageRequest);
-            sqs.sendMessage(sendMessageRequest);
+            log.info("aws SQS Message ID -> {}", sqs.sendMessage(sendMessageRequest));
 
-            log.info("aws SQS Message Data -> {}", object.toString());
+            log.info("aws SQS Message send Data -> {}", jsonString);
         }catch (Exception e){
             log.error(e.toString());
         }
 
     }
 
-    //@Scheduled(fixedRate = 1000)
+    //@Scheduled(fixedRate = 2000)
     public void receive(){
 
-        log.info("aws SQS Message receive");
-
         ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(sqsConfig.getUrl())
-                .withWaitTimeSeconds(2).withMaxNumberOfMessages(10);
+                .withWaitTimeSeconds(2).withMaxNumberOfMessages(1);
         List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
 
-        for(Message message : messages){
-            System.out.println(message.toString());
-        }
-
-        log.info("aws SQS Message Data -> {}", messages);
+        log.info("aws SQS Message receive Data -> {}", messages);
     }
 
 

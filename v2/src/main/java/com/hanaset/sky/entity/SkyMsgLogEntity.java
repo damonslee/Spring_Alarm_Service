@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -21,10 +22,10 @@ public class SkyMsgLogEntity {
     private String code;
 
     @Column(name = "req_time")
-    private long reqTime;
+    private Timestamp reqTime;
 
     @Column(name = "comp_time")
-    private long compTime;
+    private Timestamp compTime;
 
     private String result;
 

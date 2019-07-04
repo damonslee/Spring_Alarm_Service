@@ -9,4 +9,7 @@ public class SkyHealthRest {
 
     @GetMapping("/health")
     public ResponseEntity health() { return ResponseEntity.ok("Ok");}
+
+    @GetMapping("")
+    public ResponseEntity firstPage() { return ResponseEntity.ok("Ok");}
 }

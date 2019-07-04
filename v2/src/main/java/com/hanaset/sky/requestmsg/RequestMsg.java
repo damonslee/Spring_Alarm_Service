@@ -12,7 +12,6 @@ public class RequestMsg {
 
     @NotNull
     private String to;
-
-    @NotNull
+    
     private JSONObject param;
 }

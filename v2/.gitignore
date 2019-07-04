@@ -7,6 +7,15 @@
 *.iml
 out
 gen
+logs
+/main/resources
+DLL.sql
 build.gradle
+build/
 logs/
-src/main/resources
+sky_deploy.sh
+sky_exe.sh
+src/DLL.sql
+src/build.gradle
+src/build/
+src/logs/
